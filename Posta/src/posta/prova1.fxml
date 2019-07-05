@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.web.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="base_pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="posta.FXMLDocumentController">
+    <children>
+        <BorderPane prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <left>
+                <VBox prefHeight="200.0" prefWidth="150.0" spacing="15.0" style="-fx-background-color: #282828;" BorderPane.alignment="CENTER">
+                    <children>
+                        <Button fx:id="scriviButton" mnemonicParsing="false" onAction="#scriviEmail" prefHeight="31.0" prefWidth="226.0" style="-: #;" text="Scrivi" />
+                        <Button fx:id="aggiornaButton" mnemonicParsing="false" onAction="#updateEmailList" prefHeight="31.0" prefWidth="226.0" style="-: ;" text="Aggiorna" />
+                  <Button id="eliminaButton" fx:id="eliminaButton" mnemonicParsing="false" onAction="#eliminaMail" prefHeight="31.0" prefWidth="118.0" text="Elimina" />
+                    </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+               </padding>
+                </VBox>
+            </left>
+            <center>
+                <AnchorPane fx:id="right_pane" style="-fx-background-color: #383838;" BorderPane.alignment="CENTER">
+                    <children>
+                        <ListView id="list_view" fx:id="list_view" onMouseClicked="#visualizeEmail" prefHeight="400.0" prefWidth="350.0" style="-fx-background-color: #383838;" stylesheets="@Viper.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                    </children>
+                </AnchorPane>
+            </center>
+            <top>
+                <MenuBar style="-fx-background-color: #B8B8B8;" BorderPane.alignment="CENTER">
+                    <menus>
+                        <Menu mnemonicParsing="false" text="File">
+                            <items>
+                                <MenuItem mnemonicParsing="false" text="Close" />
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Edit">
+                            <items>
+                                <MenuItem mnemonicParsing="false" text="Delete" />
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Help">
+                            <items>
+                                <MenuItem mnemonicParsing="false" text="About" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+            </top>
+        </BorderPane>
+    </children>
+</AnchorPane>
