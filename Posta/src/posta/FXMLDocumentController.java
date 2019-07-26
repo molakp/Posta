@@ -126,7 +126,7 @@ public class FXMLDocumentController implements Initializable {
     public FXMLDocumentController() {
 
     }
-
+    // Imposta l'utente 
     public void setUser(String userString) {
         user = userString;
         filename = user + ".txt";
@@ -161,7 +161,7 @@ public class FXMLDocumentController implements Initializable {
             outStream = new ObjectOutputStream(s.getOutputStream());// apro stream output
             System.out.println("Ho aperto stream output\n");
             InputStream simpleinInputStream = s.getInputStream();
-             //receiveEmails(s);
+            //receiveEmails(s);
             System.out.println("Ho aperto simple stream input\n");
             inStream = new ObjectInputStream(simpleinInputStream);// apro stream input
             System.out.println("Ho aperto  stream input\n");
@@ -207,7 +207,7 @@ public class FXMLDocumentController implements Initializable {
         });
 
         updateEmailList();
-      
+
     }
 
     /**
@@ -215,13 +215,13 @@ public class FXMLDocumentController implements Initializable {
      *
      * @param s
      */
-    public void receiveEmails(Socket s){
-        
-          Runnable emailReceiver = new ReceiveEmail(s);
-                new Thread(emailReceiver).start();
-    
-    
+    public void receiveEmails(Socket s) {
+
+        Runnable emailReceiver = new ReceiveEmail(s);
+        new Thread(emailReceiver).start();
+
     }
+
     /**
      *
      * Carica le email presenti nel file in emailList Chiamato solo all'avvio
@@ -229,22 +229,28 @@ public class FXMLDocumentController implements Initializable {
      */
     private void loadEmails() {
 
-        //leggiamo il database per caricare le email salvate
-        List<String> records = readFile("C:\\Users\\silve\\Desktop\\Uni\\prog3\\Lab\\Grafica\\Posta\\Posta\\src\\posta\\" + filename);
+        //leggiamo il database relativo all'utente per caricare le email salvate
+        try {
+            List<String> records;
+            records = readFile("C:\\Users\\silve\\Documents\\GitHub\\Posta\\" + filename);
+            for (String s : records) {
+                String[] output = s.split("\\|");
 
-        for (String s : records) {
-            String[] output = s.split("\\|");
+                String[] destinatariStrings = output[3].split("$"); // i destinatari sono separati da un $ 
 
-            String[] destinatariStrings = output[3].split("$");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                // date1 = new SimpleDateFormat("h:mm a").parse(output[1]);
+                LocalDateTime dateTime = LocalDateTime.parse(output[1], formatter);
+                System.out.println(dateTime);
+                /*  Esempio di email 12345|2019-05-10T17:07:24.764|mario@ciao|silvestro@prog.com$mario@ciao$|adsfdasfasdfs|dsafjdasfjkafjsdabajsdf*/
+                emailList.add(new Email(Integer.parseInt(output[0]), dateTime, output[2], destinatariStrings, output[4], output[5]));
+                updateEmailList();
+            }
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
-            // date1 = new SimpleDateFormat("h:mm a").parse(output[1]);
-            LocalDateTime dateTime = LocalDateTime.parse(output[1], formatter);
-            System.out.println(dateTime);
-
-            emailList.add(new Email(Integer.parseInt(output[0]), dateTime, output[2], destinatariStrings, output[4], output[5]));
-
+        } catch (Exception e) {
+            System.err.println("Wrong username in login! ");
         }
+
     }
 
     /**
@@ -377,7 +383,7 @@ public class FXMLDocumentController implements Initializable {
                 System.out.print(emailTextArea.getText());
                 String destinatariRawString = destField.getText();
                 String[] arrayDestinatariString = destinatariRawString.split(";");
-                Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
+                Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText()+"|");
                 emailList.add(toSendEmail);
 
                 try {
@@ -407,6 +413,7 @@ class ReceiveEmail implements Runnable {
 
     private Socket incoming;
     ObjectInputStream inStream;
+
     public ReceiveEmail(Socket incomingSocket) {
         incoming = incomingSocket;
 
@@ -420,11 +427,11 @@ class ReceiveEmail implements Runnable {
                 try {
                     Email receivedEmail = ((Email) inStream.readObject());
                     System.out.println("Echo: " + receivedEmail.emailString());
-                    
+
                 } catch (Exception ex) {
                     Logger.getLogger(FXMLDocumentController.class
                             .getName()).log(Level.SEVERE, null, ex);
-                     
+
                 }
             }
         } catch (IOException ex) {

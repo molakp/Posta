@@ -90,12 +90,14 @@ public class Email implements  Serializable{
     }
 
     @Override
+    // Ritorna una stringa formattata contenete email in formato leggibile
     public String toString() {
         String s = "Mittente: " + getMittente() + "\n Destinatario: " + Arrays.toString(getDestinatario()) + "\nTesto: " + getTesto() + "\nData: " + getDate();
         return s;
     }
+    // Ritorna stringa contenente email  con sintassi adatta per database
     public String emailString() {
-        String s = "Mittente: " + getMittente() + "\n Destinatario: " + Arrays.toString(getDestinatario()).replaceAll("$", ";") + "\nTesto: " + getTesto() + "\nData: " + getDate();
+        String s = Integer.toString(getId())+"\\|"+getDate()+"\\|"+ getMittente() +"\\|"+ Arrays.toString(getDestinatario()).replaceAll("$", ";")+"\\|"+getArgomento() +"\\|"+ getTesto() + "\\|";
         return s;
     }
 }
