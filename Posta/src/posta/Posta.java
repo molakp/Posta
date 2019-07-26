@@ -82,7 +82,7 @@ public class Posta extends Application {
                       scene1.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica
                       
                       window.setScene(scene1);
-                      window.setTitle("Email v0.4");
+                      window.setTitle("Email v0.6 User: "+ userField.getText());
                       window.show();
                       
                       window.setOnCloseRequest(

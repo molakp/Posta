@@ -122,6 +122,7 @@ public class FXMLDocumentController implements Initializable {
      * quando il login è avvenuto carica il file corrispondente.
      */
     private String filename = "Database.txt";
+    private String filePath;
 
     public FXMLDocumentController() {
 
@@ -130,7 +131,8 @@ public class FXMLDocumentController implements Initializable {
     public void setUser(String userString) {
         user = userString;
         filename = user + ".txt";
-        System.out.println("User is :" + user + "File is: " + filename);
+        filePath= "C:\\Users\\silve\\Documents\\GitHub\\Posta\\" + filename;
+        System.out.println("User is :" + user + "\n File is: " + filename + " \n File path is: "+ filePath );
         loadEmails();
 
     }
@@ -140,8 +142,8 @@ public class FXMLDocumentController implements Initializable {
     public void initialize(URL ur, ResourceBundle rb) {
         scriviButton = new Button();
         eliminaButton = new Button();
-
-        loadEmails();
+       
+        //loadEmails();
 
         /* IMPORTANTE!!! nno c'è bisogno di dichiarare list_view= new ListView<>();
             perchè ci pensa già l'FXML a farlo! se lo facciamo creiamo un duplicato che non vedremo nella GUI
@@ -206,7 +208,7 @@ public class FXMLDocumentController implements Initializable {
             }
         });
 
-        updateEmailList();
+       // updateEmailList();
 
     }
 
@@ -227,12 +229,12 @@ public class FXMLDocumentController implements Initializable {
      * Carica le email presenti nel file in emailList Chiamato solo all'avvio
      * del programma
      */
-    private void loadEmails() {
+    private  void loadEmails() {
 
         //leggiamo il database relativo all'utente per caricare le email salvate
         try {
             List<String> records;
-            records = readFile("C:\\Users\\silve\\Documents\\GitHub\\Posta\\" + filename);
+            records = readFile(filePath);
             for (String s : records) {
                 String[] output = s.split("\\|");
 
@@ -255,26 +257,27 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * il contrario di load, scrive tutte le email presenti nell'array nel file
-     * Database.txt presente sotto Posta, non quello dentro src/posta che invece
+     * presente sotto Posta, non quello dentro src/posta che invece
      * non viene mai toccato. Questo metodo va chiamato ogni volta chge si
      * eseguono operazioni sulle email per aggiornare il fine e salvare tutto,
      * quindi l'ho messo in updateEmailList(), in modo che in un colpo solo
      * aggiorna file e interfaccia
      */
-    private void saveEmails() {
+    private   void saveEmails() {
         try {
             //  PrintWriter pw = new PrintWriter("Database.txt");
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filename));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filePath));
             //pw.close();
             // BufferedReader br1 = new BufferedReader(new FileReader("Database.txt"));
 
             emailList.forEach((e) -> {
                 try {
-                    bufferedWriter.write(e.getId() + "|" + e.getDate() + "|" + e.getMittente() + "|");
+                   /* bufferedWriter.write(e.getId() + "|" + e.getDate() + "|" + e.getMittente() + "|");
                     for (String s : e.getDestinatario()) {
                         bufferedWriter.write(s + "$");
                     }
-                    bufferedWriter.write("|" + e.getArgomento() + "|" + e.getTesto());
+                    bufferedWriter.write("|" + e.getArgomento() + "|" + e.getTesto()); */
+                   bufferedWriter.write(e.emailString());
 
                 } catch (IOException ex) {
                     Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
@@ -287,10 +290,10 @@ public class FXMLDocumentController implements Initializable {
 
     }
 
-    private List<String> readFile(String filename) {
+    private List<String> readFile(String file) {
         List<String> records = new ArrayList<String>();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(filename));
+            BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
             while ((line = reader.readLine()) != null) {
                 records.add(line);
@@ -298,7 +301,7 @@ public class FXMLDocumentController implements Initializable {
             reader.close();
             return records;
         } catch (Exception e) {
-            System.err.format("Exception occurred trying to read '%s'.", filename);
+            System.out.println("Exception occurred trying to read : "+ file);
             e.printStackTrace();
             return null;
         }
@@ -311,7 +314,8 @@ public class FXMLDocumentController implements Initializable {
             Stage window = new Stage();
 
             Pane root = new Pane();
-
+            BorderPane borderPane = new BorderPane();
+            root.getChildren().add(borderPane);
             Scene scene = new Scene(root);
             TextArea emailTextArea = new TextArea();
             scene.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica 
@@ -319,9 +323,13 @@ public class FXMLDocumentController implements Initializable {
             emailTextArea.setText(selectedEmails.get(0).getTesto());
             Button reply = new Button("Rispondi");
             emailTextArea.setEditable(false);
-            root.getChildren().addAll(emailTextArea, reply);
+            
+            
+            VBox topBox = new VBox();
+            topBox.getChildren().addAll(emailTextArea, reply);
+            borderPane.setCenter(topBox);
             window.setScene(scene);
-            window.setTitle("Email v0.4");
+            window.setTitle("Email v0.6 User:"+user);
             window.show();
 
         } catch (Exception e) {
@@ -383,7 +391,8 @@ public class FXMLDocumentController implements Initializable {
                 System.out.print(emailTextArea.getText());
                 String destinatariRawString = destField.getText();
                 String[] arrayDestinatariString = destinatariRawString.split(";");
-                Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText()+"|");
+                //limitarsi a creare l'oggetto email, ogni problema legato alla formattazione è delegato al metodo emailString di email
+                Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
                 emailList.add(toSendEmail);
 
                 try {
@@ -397,7 +406,9 @@ public class FXMLDocumentController implements Initializable {
                 window.close(); // chiudo la finestra
 
                 System.out.println("Email salvate!");
-                updateEmailList();  // aggiorno la lista 
+                  list_view.getItems().clear(); // cancella tutto il contenuto della list view
+                    list_view.getItems().addAll(emailList);// ripopola la list view con le email più la nuova appena mandata
+               // updateEmailList();  // aggiorno la lista 
             });
 
         } catch (Exception e) {

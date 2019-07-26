@@ -33,6 +33,7 @@ public class ConnectionHandler implements Runnable {
 
         ObjectInputStream inStream;
         ObjectOutputStream objectOutputStream;
+        String filePath= "C:\\Users\\silve\\Documents\\GitHub\\Posta\\";
         try {
 
             inStream = new ObjectInputStream(incoming.getInputStream());
@@ -52,7 +53,7 @@ public class ConnectionHandler implements Runnable {
                         try {
                             System.out.println("Writing email in sender database ");
                             // Scrivo email in database mittente
-                            FileWriter fw = new FileWriter("C:\\Users\\silve\\Documents\\GitHub\\Posta\\" + email.getMittente() + ".txt", true);
+                            FileWriter fw = new FileWriter(filePath + email.getMittente() + ".txt", true);
                             BufferedWriter bw = new BufferedWriter(fw);
                             PrintWriter out = new PrintWriter(bw);
                             out.println(email.emailString());
@@ -70,7 +71,7 @@ public class ConnectionHandler implements Runnable {
                         try {
                             System.out.println("Writing email in receiver database ");
                             // Scrivo email in database destinatario
-                            FileWriter fw = new FileWriter("C:\\Users\\silve\\Documents\\GitHub\\Posta\\" + email.getDestinatario()[0] + ".txt", true);
+                            FileWriter fw = new FileWriter(filePath + email.getDestinatario()[0] + ".txt", true);
                             BufferedWriter bw = new BufferedWriter(fw);
                             PrintWriter out = new PrintWriter(bw);
                             out.println(email.emailString());

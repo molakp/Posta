@@ -1,17 +1,1 @@
-Mittente: silvestro@prog.com
- Destinatario: [mario@ciao]
-Testo: Testo25 252 5|
-Data: 2019-07-26T12:24:19.471
-Mittente: silvestro@prog.com
- Destinatario: [mario@ciao]
-Testo: cisaocinasoic|
-Data: 2019-07-26T12:24:46.052
-Mittente: silvestro@prog.com
- Destinatario: [mario@ciao]
-Testo: ciao mario|
-Data: 2019-07-26T17:09:26.397
-Mittente: silvestro@prog.com
- Destinatario: [mario@ciao];
-Testo: 27 email 27 27|
-Data: 2019-07-26T17:39:43.104
-12345\|2019-07-26T18:50:30.499\|silvestro@prog.com\|[mario@ciao];\|78\|78878787|\|
+12345|2019-07-26T19:28:15.028|silvestro@prog.com|[[[mario@ciao]]]|lavoro|ti aspetto a lavoro|12345|2019-07-26T20:53:05.395|silvestro@prog.com|[[mario@ciao]]|valeria|vale|12345|2019-07-26T20:56:12.224|silvestro@prog.com|[mario@ciao]|dsfsd|dsfdsfdsfdsf|

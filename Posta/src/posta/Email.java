@@ -97,7 +97,7 @@ public class Email implements  Serializable{
     }
     // Ritorna stringa contenente email  con sintassi adatta per database
     public String emailString() {
-        String s = Integer.toString(getId())+"\\|"+getDate()+"\\|"+ getMittente() +"\\|"+ Arrays.toString(getDestinatario()).replaceAll("$", ";")+"\\|"+getArgomento() +"\\|"+ getTesto() + "\\|";
+        String s = Integer.toString(getId())+"|"+getDate()+"|"+ getMittente() +"|"+ Arrays.toString(getDestinatario())+"|"+getArgomento() +"|"+ getTesto() + "|";
         return s;
     }
 }
