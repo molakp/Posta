@@ -327,18 +327,23 @@ public class FXMLDocumentController implements Initializable {
             emailTextArea.setText(selectedEmails.get(0).getTesto());
             Button reply = new Button("Rispondi");
             emailTextArea.setEditable(false);
-
             VBox topBox = new VBox();
             topBox.getChildren().addAll(emailTextArea, reply);
             borderPane.setCenter(topBox);
             window.setScene(scene);
             window.setTitle("Email v0.6 User:" + user);
             window.show();
+             reply.setOnAction(((event) -> { 
+                 window.close();
+                 scriviEmail(selectedEmails.get(0).getMittente()); } ));
+         
 
         } catch (Exception e) {
             System.out.println(e.getCause() + e.toString());
 
         }
+
+        
     }
 
     public boolean eliminaMail() {
@@ -457,6 +462,73 @@ public class FXMLDocumentController implements Initializable {
         }
 
     }
+  
+   
+    public void scriviEmail(String dest){
+           System.out.println("SCRIVI");
+        try {
+            Stage window = new Stage();
+
+            Pane root = new Pane();
+
+            Scene scene = new Scene(root);
+            BorderPane borderPane = new BorderPane();
+
+            root.getChildren().add(borderPane);
+            TextField destField = new TextField();
+            String destinatariString= dest+";";
+            destField.setText(destinatariString);
+            TextField oggettoField = new TextField("Inserisci oggetto");
+            TextArea emailTextArea = new TextArea("Testo");
+
+            Button inviaButton = new Button("Invia");
+            VBox topBox = new VBox();
+            topBox.getChildren().addAll(destField, oggettoField);
+            borderPane.setTop(topBox);
+
+            borderPane.setCenter(emailTextArea);
+            borderPane.setBottom(inviaButton);
+            scene.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica 
+
+            window.setScene(scene);
+            window.setTitle("Scrivi");
+            window.show();
+
+            inviaButton.setOnAction((event) -> {
+                System.out.print(emailTextArea.getText());
+                String destinatariRawString = destField.getText();
+                String[] arrayDestinatariString = destinatariRawString.split(";");
+                for (String string : arrayDestinatariString) {
+                    System.out.println("destinatari "+string);
+                    
+                }
+                //limitarsi a creare l'oggetto email, ogni problema legato alla formattazione è delegato al metodo emailString di email
+                Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
+                emailList.add(toSendEmail);
+
+                try {
+                    // outStream.writeObject("12345" + "|" + LocalDateTime.now().toString().toString() + "|" + user + "|" + destField.getText() + "|" + oggettoField.getText() + "|" + emailTextArea.getText());
+                    outStream.writeObject(toSendEmail);
+
+                } catch (IOException ex) {
+                    Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                window.close(); // chiudo la finestra
+
+                System.out.println("Email salvate!");
+                list_view.getItems().clear(); // cancella tutto il contenuto della list view
+                list_view.getItems().addAll(emailList);// ripopola la list view con le email più la nuova appena mandata
+                // updateEmailList();  // aggiorno la lista 
+            });
+
+        } catch (Exception e) {
+            System.out.println(e.getCause() + e.toString());
+            
+
+        }
+       
+}
 
 }
 

@@ -6,3 +6,5 @@
 12345|2019-07-28T00:35:53.837|mario@ciao|mario@ciao;|Inserisci oggetto|self|
 12345|2019-07-28T00:36:28.026|mario@ciao|mario@ciao;silvestro@prog.com;|Inserisci oggetto|paso doble 11?|
 12345|2019-07-28T00:36:28.026|mario@ciao|mario@ciao;silvestro@prog.com;|Inserisci oggetto|paso doble 11?|
+12345|2019-07-28T01:17:56.050|silvestro@prog.com|mario@ciao;|risposta|wqdqwdqwdwqd|
+12345|2019-07-28T01:19:43.258|silvestro@prog.com|mario@ciao;|ciao mario|graie per avermi scritto|
