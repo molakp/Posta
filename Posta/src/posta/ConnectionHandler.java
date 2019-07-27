@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,7 +34,7 @@ public class ConnectionHandler implements Runnable {
 
         ObjectInputStream inStream;
         ObjectOutputStream objectOutputStream;
-        String filePath= "C:\\Users\\silve\\Documents\\GitHub\\Posta\\";
+        String filePath = "C:\\Users\\silve\\Documents\\GitHub\\Posta\\";
         try {
 
             inStream = new ObjectInputStream(incoming.getInputStream());
@@ -51,36 +52,43 @@ public class ConnectionHandler implements Runnable {
                         String[] output = email.getTesto().split("\\|");
 
                         try {
+
                             System.out.println("Writing email in sender database ");
                             // Scrivo email in database mittente
                             FileWriter fw = new FileWriter(filePath + email.getMittente() + ".txt", true);
-                            BufferedWriter bw = new BufferedWriter(fw);
-                            PrintWriter out = new PrintWriter(bw);
-                            out.println(email.emailString());
-                            System.out.println("email scritta");
-                            //fw.flush();
-                            out.close();
-                            bw.close();
-                            fw.close();
+                            synchronized (fw) {
+                                BufferedWriter bw = new BufferedWriter(fw);
+                                PrintWriter out = new PrintWriter(bw);
+                                out.println(email.emailString());
 
-                            System.out.println("Email wrote in sender database");
+                                //fw.flush();
+                                out.close();
+                                bw.close();
+                                fw.close();
+
+                                System.out.println("Email wrote in sender database");
+                            }
                         } catch (Exception e) {
                             System.out.println("Error in server in sender method");
                             e.printStackTrace();
                         }
                         try {
-                            System.out.println("Writing email in receiver database ");
-                            // Scrivo email in database destinatario
-                            FileWriter fw = new FileWriter(filePath + email.getDestinatario()[0] + ".txt", true);
-                            BufferedWriter bw = new BufferedWriter(fw);
-                            PrintWriter out = new PrintWriter(bw);
-                            out.println(email.emailString());
-                            out.close();
-                            bw.close();
-                            fw.close();
-                            System.out.println("Email wrote in receiver database");
-
-                        } catch (IOException e) {
+                            for (String destiString : email.getDestinatario()) {
+                                
+                                System.out.println("Writing email in receiver database ");
+                                // Scrivo email in database destinatario
+                                FileWriter fw = new FileWriter(filePath + destiString + ".txt", true);
+                                synchronized (fw) {
+                                    BufferedWriter bw = new BufferedWriter(fw);
+                                    PrintWriter out = new PrintWriter(bw);
+                                    out.println(email.emailString());
+                                    out.close();
+                                    bw.close();
+                                    fw.close();
+                                    System.out.println("Email wrote in  database of " + destiString);
+                                }
+                            }
+                        } catch (Exception e) {
                             System.out.println("Error in server in receiver method");
                             System.err.println(e.toString());
                         }
@@ -94,7 +102,7 @@ public class ConnectionHandler implements Runnable {
                     System.out.println(e.getMessage());
                 }
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             System.out.println("Error in server");
             Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
 

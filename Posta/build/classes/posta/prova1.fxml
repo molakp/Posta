@@ -17,7 +17,7 @@
                 <VBox prefHeight="200.0" prefWidth="150.0" spacing="15.0" style="-fx-background-color: #282828;" BorderPane.alignment="CENTER">
                     <children>
                         <Button fx:id="scriviButton" mnemonicParsing="false" onAction="#scriviEmail" prefHeight="31.0" prefWidth="226.0" style="-: #;" text="Scrivi" />
-                        <Button fx:id="aggiornaButton" mnemonicParsing="false" onAction="#updateEmailList" prefHeight="31.0" prefWidth="226.0" style="-: ;" text="Aggiorna" />
+                        <Button fx:id="aggiornaButton" mnemonicParsing="false" onAction="#readFromDatabase" prefHeight="31.0" prefWidth="226.0" style="-: ;" text="Aggiorna" />
                   <Button id="eliminaButton" fx:id="eliminaButton" mnemonicParsing="false" onAction="#eliminaMail" prefHeight="31.0" prefWidth="118.0" text="Elimina" />
                     </children>
                <opaqueInsets>

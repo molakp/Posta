@@ -1,1 +1,8 @@
-12345|2019-07-26T19:28:15.028|silvestro@prog.com|[[[mario@ciao]]]|lavoro|ti aspetto a lavoro|12345|2019-07-26T20:53:05.395|silvestro@prog.com|[[mario@ciao]]|valeria|vale|12345|2019-07-26T20:56:12.224|silvestro@prog.com|[mario@ciao]|dsfsd|dsfdsfdsfdsf|
+12345|2019-07-28T00:34:07.744|silvestro@prog.com|mario@ciao;|Inserisci oggetto|Testo1|
+12345|2019-07-28T00:34:54.468|mario@ciao|silvestroprog.com;|Inserisci oggetto|Testo34|
+12345|2019-07-28T00:35:11.790|mario@ciao|silvestro@prog.com;|Inserisci oggetto|Testo35|
+12345|2019-07-28T00:35:33.342|silvestro@prog.com|mario@ciao;|Inserisci oggetto|Testo36|
+12345|2019-07-28T00:35:53.837|mario@ciao|mario@ciao;|Inserisci oggetto|self|
+12345|2019-07-28T00:35:53.837|mario@ciao|mario@ciao;|Inserisci oggetto|self|
+12345|2019-07-28T00:36:28.026|mario@ciao|mario@ciao;silvestro@prog.com;|Inserisci oggetto|paso doble 11?|
+12345|2019-07-28T00:36:28.026|mario@ciao|mario@ciao;silvestro@prog.com;|Inserisci oggetto|paso doble 11?|

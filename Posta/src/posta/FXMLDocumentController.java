@@ -127,12 +127,13 @@ public class FXMLDocumentController implements Initializable {
     public FXMLDocumentController() {
 
     }
+
     // Imposta l'utente 
     public void setUser(String userString) {
         user = userString;
         filename = user + ".txt";
-        filePath= "C:\\Users\\silve\\Documents\\GitHub\\Posta\\" + filename;
-        System.out.println("User is :" + user + "\n File is: " + filename + " \n File path is: "+ filePath );
+        filePath = "C:\\Users\\silve\\Documents\\GitHub\\Posta\\" + filename;
+        System.out.println("User is :" + user + "\n File is: " + filename + " \n File path is: " + filePath);
         loadEmails();
 
     }
@@ -142,7 +143,7 @@ public class FXMLDocumentController implements Initializable {
     public void initialize(URL ur, ResourceBundle rb) {
         scriviButton = new Button();
         eliminaButton = new Button();
-       
+
         //loadEmails();
 
         /* IMPORTANTE!!! nno c'è bisogno di dichiarare list_view= new ListView<>();
@@ -208,8 +209,8 @@ public class FXMLDocumentController implements Initializable {
             }
         });
 
-       // updateEmailList();
-
+        // updateEmailList();
+        //   receiveEmails(s);
     }
 
     /**
@@ -229,24 +230,26 @@ public class FXMLDocumentController implements Initializable {
      * Carica le email presenti nel file in emailList Chiamato solo all'avvio
      * del programma
      */
-    private  void loadEmails() {
+    private void loadEmails() {
 
         //leggiamo il database relativo all'utente per caricare le email salvate
         try {
             List<String> records;
             records = readFile(filePath);
             for (String s : records) {
-                String[] output = s.split("\\|");
+                if (!"\n".equals(s)) {
+                    String[] output = s.split("\\|");
 
-                String[] destinatariStrings = output[3].split("$"); // i destinatari sono separati da un $ 
+                    String[] destinatariStrings = output[3].split(";"); // i destinatari sono separati da un $ 
 
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
-                // date1 = new SimpleDateFormat("h:mm a").parse(output[1]);
-                LocalDateTime dateTime = LocalDateTime.parse(output[1], formatter);
-                System.out.println(dateTime);
-                /*  Esempio di email 12345|2019-05-10T17:07:24.764|mario@ciao|silvestro@prog.com$mario@ciao$|adsfdasfasdfs|dsafjdasfjkafjsdabajsdf*/
-                emailList.add(new Email(Integer.parseInt(output[0]), dateTime, output[2], destinatariStrings, output[4], output[5]));
-                updateEmailList();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                    // date1 = new SimpleDateFormat("h:mm a").parse(output[1]);
+                    LocalDateTime dateTime = LocalDateTime.parse(output[1], formatter);
+                    System.out.println(dateTime);
+                    /*  Esempio di email 12345|2019-05-10T17:07:24.764|mario@ciao|silvestro@prog.com$mario@ciao$|adsfdasfasdfs|dsafjdasfjkafjsdabajsdf*/
+                    emailList.add(new Email(Integer.parseInt(output[0]), dateTime, output[2], destinatariStrings, output[4], output[5]));
+                    updateEmailList();
+                }
             }
 
         } catch (Exception e) {
@@ -257,13 +260,13 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * il contrario di load, scrive tutte le email presenti nell'array nel file
-     * presente sotto Posta, non quello dentro src/posta che invece
-     * non viene mai toccato. Questo metodo va chiamato ogni volta chge si
-     * eseguono operazioni sulle email per aggiornare il fine e salvare tutto,
-     * quindi l'ho messo in updateEmailList(), in modo che in un colpo solo
-     * aggiorna file e interfaccia
+     * presente sotto Posta, non quello dentro src/posta che invece non viene
+     * mai toccato. Questo metodo va chiamato ogni volta chge si eseguono
+     * operazioni sulle email per aggiornare il fine e salvare tutto, quindi
+     * l'ho messo in updateEmailList(), in modo che in un colpo solo aggiorna
+     * file e interfaccia
      */
-    private   void saveEmails() {
+    private void saveEmails() {
         try {
             //  PrintWriter pw = new PrintWriter("Database.txt");
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filePath));
@@ -272,13 +275,13 @@ public class FXMLDocumentController implements Initializable {
 
             emailList.forEach((e) -> {
                 try {
-                   /* bufferedWriter.write(e.getId() + "|" + e.getDate() + "|" + e.getMittente() + "|");
+                    /* bufferedWriter.write(e.getId() + "|" + e.getDate() + "|" + e.getMittente() + "|");
                     for (String s : e.getDestinatario()) {
                         bufferedWriter.write(s + "$");
                     }
                     bufferedWriter.write("|" + e.getArgomento() + "|" + e.getTesto()); */
-                   bufferedWriter.write(e.emailString());
-
+                    bufferedWriter.write(e.emailString()+"\n");
+                       
                 } catch (IOException ex) {
                     Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -296,12 +299,13 @@ public class FXMLDocumentController implements Initializable {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
             while ((line = reader.readLine()) != null) {
+                System.out.println(line);
                 records.add(line);
             }
             reader.close();
             return records;
         } catch (Exception e) {
-            System.out.println("Exception occurred trying to read : "+ file);
+            System.out.println("Exception occurred trying to read : " + file);
             e.printStackTrace();
             return null;
         }
@@ -323,13 +327,12 @@ public class FXMLDocumentController implements Initializable {
             emailTextArea.setText(selectedEmails.get(0).getTesto());
             Button reply = new Button("Rispondi");
             emailTextArea.setEditable(false);
-            
-            
+
             VBox topBox = new VBox();
             topBox.getChildren().addAll(emailTextArea, reply);
             borderPane.setCenter(topBox);
             window.setScene(scene);
-            window.setTitle("Email v0.6 User:"+user);
+            window.setTitle("Email v0.6 User:" + user);
             window.show();
 
         } catch (Exception e) {
@@ -351,11 +354,44 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void updateEmailList() {
+        //Scrivo quello che ho nella List nel file
         // Aggiorna la vista elenco email e il file di testo
         saveEmails();
         list_view.getItems().clear(); // cancella tutto il contenuto della list view
         list_view.getItems().addAll(emailList);// ripopola la list view con le email aggiornate
 
+    }
+
+    public void readFromDatabase() {
+        emailList.clear();// cancello tutte le email  per evitare duplicati
+        list_view.getItems().clear(); // cancella tutto il contenuto della list view
+        //  loadEmails(); // leggo le email dal file e le carico nella List
+        //leggiamo il database relativo all'utente per caricare le email salvate
+        try {
+            List<String> records;
+            records = readFile(filePath);
+            for (String s : records) {
+                String[] output = s.split("\\|");
+
+                String[] destinatariStrings = output[3].split(";"); // i destinatari sono separati da un $ 
+                for (String destString : destinatariStrings) {
+                    System.out.println(" \n Un destinatario è " + destString);
+                }
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                // date1 = new SimpleDateFormat("h:mm a").parse(output[1]);
+                LocalDateTime dateTime = LocalDateTime.parse(output[1], formatter);
+                System.out.println(dateTime);
+                /*  Esempio di email 12345|2019-05-10T17:07:24.764|mario@ciao|silvestro@prog.com$mario@ciao$|adsfdasfasdfs|dsafjdasfjkafjsdabajsdf*/
+                emailList.add(new Email(Integer.parseInt(output[0]), dateTime, output[2], destinatariStrings, output[4], output[5]));
+
+            }
+
+        } catch (Exception e) {
+            System.err.println(e.getStackTrace());
+        }
+
+        list_view.getItems().addAll(emailList);// ripopola la list view con le email aggiornate
     }
 
     public void scriviEmail() {
@@ -391,6 +427,10 @@ public class FXMLDocumentController implements Initializable {
                 System.out.print(emailTextArea.getText());
                 String destinatariRawString = destField.getText();
                 String[] arrayDestinatariString = destinatariRawString.split(";");
+                for (String string : arrayDestinatariString) {
+                    System.out.println("destinatari "+string);
+                    
+                }
                 //limitarsi a creare l'oggetto email, ogni problema legato alla formattazione è delegato al metodo emailString di email
                 Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
                 emailList.add(toSendEmail);
@@ -406,9 +446,9 @@ public class FXMLDocumentController implements Initializable {
                 window.close(); // chiudo la finestra
 
                 System.out.println("Email salvate!");
-                  list_view.getItems().clear(); // cancella tutto il contenuto della list view
-                    list_view.getItems().addAll(emailList);// ripopola la list view con le email più la nuova appena mandata
-               // updateEmailList();  // aggiorno la lista 
+                list_view.getItems().clear(); // cancella tutto il contenuto della list view
+                list_view.getItems().addAll(emailList);// ripopola la list view con le email più la nuova appena mandata
+                // updateEmailList();  // aggiorno la lista 
             });
 
         } catch (Exception e) {
