@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.shape.*?>
 <?import java.lang.*?>
@@ -15,6 +16,14 @@
          <center>
             <TextArea fx:id="visualizer" editable="false" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
          </center>
+         <bottom>
+            <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button mnemonicParsing="false" prefHeight="16.0" prefWidth="290.0" text="Reply" />
+                  <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="304.0" text="Forward" />
+               </children>
+            </HBox>
+         </bottom>
       </BorderPane>
    </children>
 </AnchorPane>

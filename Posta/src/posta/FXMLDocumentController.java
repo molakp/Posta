@@ -331,10 +331,11 @@ public class FXMLDocumentController implements Initializable {
             scene.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica 
             selectedEmails = list_view.getSelectionModel().getSelectedItems();
             emailTextArea.setText(selectedEmails.get(0).getTesto());
-            Button reply = new Button("Rispondi");
+            Button reply = new Button("Reply");
+            Button forwardButton= new Button ("Forward");
             emailTextArea.setEditable(false);
             VBox topBox = new VBox();
-            topBox.getChildren().addAll(emailTextArea, reply);
+            topBox.getChildren().addAll(emailTextArea, reply,forwardButton);
             borderPane.setCenter(topBox);
             window.setScene(scene);
             window.setTitle("Email v0.6 User:" + user);
@@ -342,7 +343,16 @@ public class FXMLDocumentController implements Initializable {
              reply.setOnAction(((event) -> { 
                  window.close();
                  scriviEmail(selectedEmails.get(0).getMittente()); } ));
-         
+           
+             
+             forwardButton.setOnAction( ( (event)->{
+            
+                window.close();
+                forward(selectedEmails.get(0).getTesto());
+            
+             }));
+            
+            
 
         } catch (Exception e) {
             System.out.println(e.getCause() + e.toString());
@@ -351,9 +361,77 @@ public class FXMLDocumentController implements Initializable {
 
         
     }
+    /**
+     * Simile a scrivi, ma imposta il testo della textArea su textString, per fare il forward
+     * @param textString 
+     */
+    
+    public void forward (String textString){
+            System.out.println("SCRIVI");
+        try {
+            Stage window = new Stage();
+
+            Pane root = new Pane();
+
+            Scene scene = new Scene(root);
+            BorderPane borderPane = new BorderPane();
+
+            root.getChildren().add(borderPane);
+            TextField destField = new TextField();
+            
+            TextField oggettoField = new TextField("Inserisci oggetto");
+            TextArea emailTextArea = new TextArea(textString);
+
+            Button inviaButton = new Button("Invia");
+            VBox topBox = new VBox();
+            topBox.getChildren().addAll(destField, oggettoField);
+            borderPane.setTop(topBox);
+
+            borderPane.setCenter(emailTextArea);
+            borderPane.setBottom(inviaButton);
+            scene.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica 
+
+            window.setScene(scene);
+            window.setTitle("Scrivi");
+            window.show();
+
+            inviaButton.setOnAction((event) -> {
+                System.out.print(emailTextArea.getText());
+                String destinatariRawString = destField.getText();
+                String[] arrayDestinatariString = destinatariRawString.split(";");
+                for (String string : arrayDestinatariString) {
+                    System.out.println("destinatari "+string);
+                    
+                }
+                //limitarsi a creare l'oggetto email, ogni problema legato alla formattazione è delegato al metodo emailString di email
+                Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
+                emailList.add(toSendEmail);
+
+                try {
+                    // outStream.writeObject("12345" + "|" + LocalDateTime.now().toString().toString() + "|" + user + "|" + destField.getText() + "|" + oggettoField.getText() + "|" + emailTextArea.getText());
+                    outStream.writeObject(toSendEmail);
+
+                } catch (IOException ex) {
+                    Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                window.close(); // chiudo la finestra
+
+                System.out.println("Email salvate!");
+                list_view.getItems().clear(); // cancella tutto il contenuto della list view
+                list_view.getItems().addAll(emailList);// ripopola la list view con le email più la nuova appena mandata
+                // updateEmailList();  // aggiorno la lista 
+            });
+
+        } catch (Exception e) {
+            System.out.println(e.getCause() + e.toString());
+            
+
+        }
+    }
+    
 
     public boolean eliminaMail() {
-        //selectedEmails.clear(); lasciare commentata perchè da un sacco di eccezioni e errori anche se non ho capito perchè
         selectedEmails = list_view.getSelectionModel().getSelectedItems();// così metto le email selezionate qui dentro per poi farci che voglio.
 
         boolean r = emailList.removeAll(selectedEmails);
@@ -404,7 +482,10 @@ public class FXMLDocumentController implements Initializable {
 
         list_view.getItems().addAll(emailList);// ripopola la list view con le email aggiornate
     }
-
+/**
+ * Carica interfaccia per scrivere email, crea oggetto Email e lo scrive sullo stream col server,poi aggiorna la vista
+ * e aggiunge la mail alla List
+ */
     public void scriviEmail() {
 
         System.out.println("SCRIVI");
@@ -431,7 +512,7 @@ public class FXMLDocumentController implements Initializable {
             scene.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica 
 
             window.setScene(scene);
-            window.setTitle("Scrivi");
+            window.setTitle("Scrivi User is :" + user);
             window.show();
 
             inviaButton.setOnAction((event) -> {
@@ -469,7 +550,11 @@ public class FXMLDocumentController implements Initializable {
 
     }
   
-   
+   /**
+    * Overloading di Scrivi da usare nel caso di reply, prende come destinatario
+    * la Stringa dest passata come parametro
+    * @param  String dest
+    */
     public void scriviEmail(String dest){
            System.out.println("SCRIVI");
         try {
@@ -559,13 +644,15 @@ class ReceiveEmail implements Runnable {
                    
                    int messageCode=inStream.readInt();
                    if(messageCode== 1 ){ // se server ha scritto email
+                       // Non posso modificare GUI altirmenti lancia
+                       //java.lang.IllegalStateException: Not on FX application thread 
                    
-                        Alert alert = new Alert(AlertType.INFORMATION);
+                       /* Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setTitle("New email!");
                  
                         alert.setContentText("You have a new message!");
 
-                        alert.showAndWait(); 
+                        alert.showAndWait(); */ 
                        System.out.println("NOTIFY!!!!"+ this.getClass().getName());
                    }
                   
@@ -585,7 +672,6 @@ class ReceiveEmail implements Runnable {
 
     }
     
-    public void readFromDatabase(){
-    }
+    
 
 }

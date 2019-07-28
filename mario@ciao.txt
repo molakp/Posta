@@ -8,3 +8,4 @@
 12345|2019-07-28T16:58:14.792|mario@ciao|mario@ciao;|Inserisci oggetto|Testo|
 12345|2019-07-28T16:58:14.792|mario@ciao|mario@ciao;|Inserisci oggetto|Testo|
 12345|2019-07-28T16:59:14.389|mario@ciao|silvestro@prog.com;|Inserisci oggetto|Testo|
+12345|2019-07-28T18:56:58.494|mario@ciao|silvestro@prog.com;|Inserisci oggetto|notyfyyyyyyvhjvh|
