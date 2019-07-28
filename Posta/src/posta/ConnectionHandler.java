@@ -8,13 +8,16 @@ package posta;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
+import java.io.DataOutputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  *
@@ -33,12 +36,13 @@ public class ConnectionHandler implements Runnable {
     public void run() {
 
         ObjectInputStream inStream;
-        ObjectOutputStream objectOutputStream;
+        DataOutputStream objectOutputStream;
+       
         String filePath = "C:\\Users\\silve\\Documents\\GitHub\\Posta\\";
         try {
 
             inStream = new ObjectInputStream(incoming.getInputStream());
-            objectOutputStream = new ObjectOutputStream(incoming.getOutputStream());
+            objectOutputStream = new DataOutputStream(incoming.getOutputStream());
             System.out.println("entrato nel try e creati stream");
             while (true) {
                 try {
@@ -47,7 +51,7 @@ public class ConnectionHandler implements Runnable {
                     // Ricevo la mail e inizio a processarla
                     Email email = ((Email) inStream.readObject());
                     System.out.println("Echo: " + email.emailString());
-                    objectOutputStream.writeObject(email);
+                   
                     try {
                         String[] output = email.getTesto().split("\\|");
 
@@ -86,6 +90,7 @@ public class ConnectionHandler implements Runnable {
                                     bw.close();
                                     fw.close();
                                     System.out.println("Email wrote in  database of " + destiString);
+                                    objectOutputStream.writeInt(1);
                                 }
                             }
                         } catch (Exception e) {

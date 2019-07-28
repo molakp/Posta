@@ -6,6 +6,7 @@
 package posta;
 
 import java.io.*;
+import java.io.DataInputStream;
 import java.net.*;
 import java.util.*;
 import java.time.LocalDateTime;
@@ -65,7 +66,10 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import java.rmi.registry.Registry;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 
 /**
@@ -113,7 +117,7 @@ public class FXMLDocumentController implements Initializable {
     private ObservableList<Email> selectedEmails = FXCollections.observableArrayList(); //qui salvo le email selezionate
     private String user;
     ObjectOutputStream outStream;
-    ObjectInputStream inStream;
+    DataInputStream inStream;
     /**
      * filename="Database.txt" va lasciato così altrimenti quando in Posta creo
      * l'oggetto FXMLDocumentController filename rimane a null producendo
@@ -135,6 +139,7 @@ public class FXMLDocumentController implements Initializable {
         filePath = "C:\\Users\\silve\\Documents\\GitHub\\Posta\\" + filename;
         System.out.println("User is :" + user + "\n File is: " + filename + " \n File path is: " + filePath);
         loadEmails();
+        
 
     }
 
@@ -166,9 +171,10 @@ public class FXMLDocumentController implements Initializable {
             InputStream simpleinInputStream = s.getInputStream();
             //receiveEmails(s);
             System.out.println("Ho aperto simple stream input\n");
-            inStream = new ObjectInputStream(simpleinInputStream);// apro stream input
+            inStream = new DataInputStream(simpleinInputStream);// apro stream input
             System.out.println("Ho aperto  stream input\n");
             // outStream.writeObject("ciao");
+            receiveEmails(s);
 
         } catch (Exception ex) {
             Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
@@ -210,11 +216,11 @@ public class FXMLDocumentController implements Initializable {
         });
 
         // updateEmailList();
-        //   receiveEmails(s);
+           
     }
 
     /**
-     * Avvia Thread di ricezione email
+     * Avvia Thread di ricezione email, crea runnable con classe receiver ed esegue metodo readFromDatabase alla ricezione per aggiornare la view
      *
      * @param s
      */
@@ -222,7 +228,7 @@ public class FXMLDocumentController implements Initializable {
 
         Runnable emailReceiver = new ReceiveEmail(s);
         new Thread(emailReceiver).start();
-
+        //Platform.runLater(emailReceiver);
     }
 
     /**
@@ -367,7 +373,7 @@ public class FXMLDocumentController implements Initializable {
 
     }
 
-    public void readFromDatabase() {
+    public synchronized void  readFromDatabase() {
         emailList.clear();// cancello tutte le email  per evitare duplicati
         list_view.getItems().clear(); // cancella tutto il contenuto della list view
         //  loadEmails(); // leggo le email dal file e le carico nella List
@@ -535,23 +541,39 @@ public class FXMLDocumentController implements Initializable {
 class ReceiveEmail implements Runnable {
 
     private Socket incoming;
-    ObjectInputStream inStream;
+    DataInputStream inStream;
+    
 
     public ReceiveEmail(Socket incomingSocket) {
         incoming = incomingSocket;
-
+       
     }
 
-    @Override
+    @Override   
     public void run() {
         try {
-            inStream = new ObjectInputStream(incoming.getInputStream());
-            while (true) {
+            inStream = new DataInputStream(incoming.getInputStream());
+            boolean keepAlive=true;
+            while (keepAlive) {
                 try {
-                    Email receivedEmail = ((Email) inStream.readObject());
-                    System.out.println("Echo: " + receivedEmail.emailString());
+                   
+                   int messageCode=inStream.readInt();
+                   if(messageCode== 1 ){ // se server ha scritto email
+                   
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("New email!");
+                 
+                        alert.setContentText("You have a new message!");
+
+                        alert.showAndWait(); 
+                       System.out.println("NOTIFY!!!!"+ this.getClass().getName());
+                   }
+                  
 
                 } catch (Exception ex) {
+                    keepAlive=false;
+                    inStream.close();
+                    System.out.println("Socket error, interrupting service");
                     Logger.getLogger(FXMLDocumentController.class
                             .getName()).log(Level.SEVERE, null, ex);
 
@@ -561,6 +583,9 @@ class ReceiveEmail implements Runnable {
             Logger.getLogger(ReceiveEmail.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+    
+    public void readFromDatabase(){
     }
 
 }
