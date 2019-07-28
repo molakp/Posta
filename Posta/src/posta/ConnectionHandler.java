@@ -17,6 +17,12 @@ import java.net.Socket;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.ListView;
+import javafx.stage.Stage;
 
 
 /**
@@ -24,6 +30,9 @@ import java.util.logging.Logger;
  * @author silve
  */
 public class ConnectionHandler implements Runnable {
+    
+    @FXML
+    ListView logListView;
 
     private Socket incoming;
 
@@ -37,8 +46,28 @@ public class ConnectionHandler implements Runnable {
 
         ObjectInputStream inStream;
         DataOutputStream objectOutputStream;
+         String filePath = "C:\\Users\\silve\\Documents\\GitHub\\Posta\\";
+      /*  try {
        
-        String filePath = "C:\\Users\\silve\\Documents\\GitHub\\Posta\\";
+        Stage window = new Stage();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ServerGUI.fxml"));
+         Parent root = (Parent) fxmlLoader.load();
+       
+       
+         root = (Parent) fxmlLoader.load();
+       
+       // ConnectionHandler controller = fxmlLoader.<ConnectionHandler>getController();
+        Scene scene1 = new Scene(root);
+        scene1.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica
+                      
+        window.setScene(scene1);
+        window.setTitle("Server GUI");
+        window.show();
+         } catch (Exception ex) {
+            Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+*/
+        
         try {
 
             inStream = new ObjectInputStream(incoming.getInputStream());
