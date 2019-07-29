@@ -66,17 +66,19 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import java.rmi.registry.Registry;
+import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
+import javax.swing.SwingUtilities;
 
 /**
  *
  * @author silve
  */
-public class FXMLDocumentController implements Initializable {
+public class FXMLDocumentController  implements Initializable {
     // Oggetti finestra principale
 
     private Posta posta;
@@ -111,7 +113,6 @@ public class FXMLDocumentController implements Initializable {
     private TextField oggetto;
     @FXML
     private TextArea testo;
-//
 
     private ObservableList<Email> emailList = FXCollections.observableArrayList();
     private ObservableList<Email> selectedEmails = FXCollections.observableArrayList(); //qui salvo le email selezionate
@@ -127,6 +128,7 @@ public class FXMLDocumentController implements Initializable {
      */
     private String filename = "Database.txt";
     private String filePath;
+    private  Notification notify;
 
     public FXMLDocumentController() {
 
@@ -138,18 +140,19 @@ public class FXMLDocumentController implements Initializable {
         filename = user + ".txt";
         filePath = "C:\\Users\\silve\\Documents\\GitHub\\Posta\\" + filename;
         System.out.println("User is :" + user + "\n File is: " + filename + " \n File path is: " + filePath);
+        Thread.currentThread().setName(user); // imposto il nome del thread col nome utente
         loadEmails();
         
+      
 
     }
+   
 
     @FXML
     @Override
-    public void initialize(URL ur, ResourceBundle rb) {
+    public void initialize(URL ur, ResourceBundle rb){
         scriviButton = new Button();
         eliminaButton = new Button();
-
-        //loadEmails();
 
         /* IMPORTANTE!!! nno c'è bisogno di dichiarare list_view= new ListView<>();
             perchè ci pensa già l'FXML a farlo! se lo facciamo creiamo un duplicato che non vedremo nella GUI
@@ -174,7 +177,7 @@ public class FXMLDocumentController implements Initializable {
             inStream = new DataInputStream(simpleinInputStream);// apro stream input
             System.out.println("Ho aperto  stream input\n");
             // outStream.writeObject("ciao");
-            receiveEmails(s);
+            
 
         } catch (Exception ex) {
             Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
@@ -215,21 +218,38 @@ public class FXMLDocumentController implements Initializable {
             }
         });
 
-        // updateEmailList();
-           
+       /*try {
+            Thread.sleep(2000);
+             receiveEmails();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        } */
+        
+       
     }
 
     /**
-     * Avvia Thread di ricezione email, crea runnable con classe receiver ed esegue metodo readFromDatabase alla ricezione per aggiornare la view
+     * Avvia Thread di ricezione email, crea runnable con classe receiver ed
+     * esegue metodo readFromDatabase alla ricezione per aggiornare la view
      *
      * @param s
      */
-    public void receiveEmails(Socket s) {
+    public void receiveEmails() throws InterruptedException {
 
-        Runnable emailReceiver = new ReceiveEmail(s);
-        new Thread(emailReceiver).start();
-        //Platform.runLater(emailReceiver);
+      //  Runnable emailReceiver = new ReceiveEmail(s);
+        Updater up= new Updater(filePath, user, emailList);
+         notify= new Notification(up);
+        up.addObserver(notify);
+        // new Thread(emailReceiver).start();
+        // Platform.runLater(emailReceiver);
+        // Thread.sleep(10);
+        Thread t = new Thread(up);
+        
+        
+        t.start();
+        
     }
+    
 
     /**
      *
@@ -251,12 +271,13 @@ public class FXMLDocumentController implements Initializable {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
                     // date1 = new SimpleDateFormat("h:mm a").parse(output[1]);
                     LocalDateTime dateTime = LocalDateTime.parse(output[1], formatter);
-                    System.out.println(dateTime);
+                   // System.out.println(dateTime);
                     /*  Esempio di email 12345|2019-05-10T17:07:24.764|mario@ciao|silvestro@prog.com$mario@ciao$|adsfdasfasdfs|dsafjdasfjkafjsdabajsdf*/
                     emailList.add(new Email(Integer.parseInt(output[0]), dateTime, output[2], destinatariStrings, output[4], output[5]));
                     updateEmailList();
                 }
             }
+            receiveEmails();
 
         } catch (Exception e) {
             System.err.println("Wrong username in login! ");
@@ -286,8 +307,8 @@ public class FXMLDocumentController implements Initializable {
                         bufferedWriter.write(s + "$");
                     }
                     bufferedWriter.write("|" + e.getArgomento() + "|" + e.getTesto()); */
-                    bufferedWriter.write(e.emailString()+"\n");
-                       
+                    bufferedWriter.write(e.emailString() + "\n");
+
                 } catch (IOException ex) {
                     Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -332,42 +353,41 @@ public class FXMLDocumentController implements Initializable {
             selectedEmails = list_view.getSelectionModel().getSelectedItems();
             emailTextArea.setText(selectedEmails.get(0).getTesto());
             Button reply = new Button("Reply");
-            Button forwardButton= new Button ("Forward");
+            Button forwardButton = new Button("Forward");
             emailTextArea.setEditable(false);
             VBox topBox = new VBox();
-            topBox.getChildren().addAll(emailTextArea, reply,forwardButton);
+            topBox.getChildren().addAll(emailTextArea, reply, forwardButton);
             borderPane.setCenter(topBox);
             window.setScene(scene);
             window.setTitle("Email v0.6 User:" + user);
             window.show();
-             reply.setOnAction(((event) -> { 
-                 window.close();
-                 scriviEmail(selectedEmails.get(0).getMittente()); } ));
-           
-             
-             forwardButton.setOnAction( ( (event)->{
-            
+            reply.setOnAction(((event) -> {
+                window.close();
+                scriviEmail(selectedEmails.get(0).getMittente());
+            }));
+
+            forwardButton.setOnAction(((event) -> {
+
                 window.close();
                 forward(selectedEmails.get(0).getTesto());
-            
-             }));
-            
-            
+
+            }));
 
         } catch (Exception e) {
             System.out.println(e.getCause() + e.toString());
 
         }
 
-        
     }
+
     /**
-     * Simile a scrivi, ma imposta il testo della textArea su textString, per fare il forward
-     * @param textString 
+     * Simile a scrivi, ma imposta il testo della textArea su textString, per
+     * fare il forward
+     *
+     * @param textString
      */
-    
-    public void forward (String textString){
-            System.out.println("SCRIVI");
+    public void forward(String textString) {
+        System.out.println("SCRIVI");
         try {
             Stage window = new Stage();
 
@@ -378,7 +398,7 @@ public class FXMLDocumentController implements Initializable {
 
             root.getChildren().add(borderPane);
             TextField destField = new TextField();
-            
+
             TextField oggettoField = new TextField("Inserisci oggetto");
             TextArea emailTextArea = new TextArea(textString);
 
@@ -400,11 +420,14 @@ public class FXMLDocumentController implements Initializable {
                 String destinatariRawString = destField.getText();
                 String[] arrayDestinatariString = destinatariRawString.split(";");
                 for (String string : arrayDestinatariString) {
-                    System.out.println("destinatari "+string);
-                    
+                    System.out.println("destinatari " + string);
+
                 }
+                double randomDouble = Math.random();
+                randomDouble = randomDouble * 50000000 + 1;
+                int idEmail = (int) randomDouble;
                 //limitarsi a creare l'oggetto email, ogni problema legato alla formattazione è delegato al metodo emailString di email
-                Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
+                Email toSendEmail = new Email(idEmail, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
                 emailList.add(toSendEmail);
 
                 try {
@@ -425,11 +448,9 @@ public class FXMLDocumentController implements Initializable {
 
         } catch (Exception e) {
             System.out.println(e.getCause() + e.toString());
-            
 
         }
     }
-    
 
     public boolean eliminaMail() {
         selectedEmails = list_view.getSelectionModel().getSelectedItems();// così metto le email selezionate qui dentro per poi farci che voglio.
@@ -451,7 +472,7 @@ public class FXMLDocumentController implements Initializable {
 
     }
 
-    public synchronized void  readFromDatabase() {
+    public synchronized void readFromDatabase() {
         emailList.clear();// cancello tutte le email  per evitare duplicati
         list_view.getItems().clear(); // cancella tutto il contenuto della list view
         //  loadEmails(); // leggo le email dal file e le carico nella List
@@ -482,10 +503,12 @@ public class FXMLDocumentController implements Initializable {
 
         list_view.getItems().addAll(emailList);// ripopola la list view con le email aggiornate
     }
-/**
- * Carica interfaccia per scrivere email, crea oggetto Email e lo scrive sullo stream col server,poi aggiorna la vista
- * e aggiunge la mail alla List
- */
+
+    /**
+     * Carica interfaccia per scrivere email, crea oggetto Email e lo scrive
+     * sullo stream col server,poi aggiorna la vista e aggiunge la mail alla
+     * List
+     */
     public void scriviEmail() {
 
         System.out.println("SCRIVI");
@@ -520,11 +543,14 @@ public class FXMLDocumentController implements Initializable {
                 String destinatariRawString = destField.getText();
                 String[] arrayDestinatariString = destinatariRawString.split(";");
                 for (String string : arrayDestinatariString) {
-                    System.out.println("destinatari "+string);
-                    
+                    System.out.println("destinatari " + string);
+
                 }
                 //limitarsi a creare l'oggetto email, ogni problema legato alla formattazione è delegato al metodo emailString di email
-                Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
+                double randomDouble = Math.random();
+                randomDouble = randomDouble * 50000000 + 1;
+                int idEmail = (int) randomDouble;
+                Email toSendEmail = new Email(idEmail, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
                 emailList.add(toSendEmail);
 
                 try {
@@ -549,14 +575,15 @@ public class FXMLDocumentController implements Initializable {
         }
 
     }
-  
-   /**
-    * Overloading di Scrivi da usare nel caso di reply, prende come destinatario
-    * la Stringa dest passata come parametro
-    * @param  String dest
-    */
-    public void scriviEmail(String dest){
-           System.out.println("SCRIVI");
+
+    /**
+     * Overloading di Scrivi da usare nel caso di reply, prende come
+     * destinatario la Stringa dest passata come parametro
+     *
+     * @param String dest
+     */
+    public void scriviEmail(String dest) {
+        System.out.println("SCRIVI");
         try {
             Stage window = new Stage();
 
@@ -567,7 +594,7 @@ public class FXMLDocumentController implements Initializable {
 
             root.getChildren().add(borderPane);
             TextField destField = new TextField();
-            String destinatariString= dest+";";
+            String destinatariString = dest + ";";
             destField.setText(destinatariString);
             TextField oggettoField = new TextField("Inserisci oggetto");
             TextArea emailTextArea = new TextArea("Testo");
@@ -590,11 +617,14 @@ public class FXMLDocumentController implements Initializable {
                 String destinatariRawString = destField.getText();
                 String[] arrayDestinatariString = destinatariRawString.split(";");
                 for (String string : arrayDestinatariString) {
-                    System.out.println("destinatari "+string);
-                    
+                    System.out.println("destinatari " + string);
+
                 }
                 //limitarsi a creare l'oggetto email, ogni problema legato alla formattazione è delegato al metodo emailString di email
-                Email toSendEmail = new Email(12345, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
+                double randomDouble = Math.random();
+                randomDouble = randomDouble * 50000000 + 1;
+                int idEmail = (int) randomDouble;
+                Email toSendEmail = new Email(idEmail, LocalDateTime.now(), user, arrayDestinatariString, oggettoField.getText(), emailTextArea.getText());
                 emailList.add(toSendEmail);
 
                 try {
@@ -615,50 +645,62 @@ public class FXMLDocumentController implements Initializable {
 
         } catch (Exception e) {
             System.out.println(e.getCause() + e.toString());
-            
 
         }
-       
-}
 
+    }
+
+ public Notification getNotify(){
+     return notify;
+     
+ }   
+ public void AlertEmail() {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("New email!");
+
+        alert.setContentText("You have a new message!");
+
+        alert.showAndWait();
+    }
 }
 
 class ReceiveEmail implements Runnable {
 
     private Socket incoming;
     DataInputStream inStream;
-    
 
     public ReceiveEmail(Socket incomingSocket) {
         incoming = incomingSocket;
-       
+
     }
 
-    @Override   
+    @Override
     public void run() {
         try {
             inStream = new DataInputStream(incoming.getInputStream());
-            boolean keepAlive=true;
+            boolean keepAlive = true;
             while (keepAlive) {
+
                 try {
-                   
-                   int messageCode=inStream.readInt();
-                   if(messageCode== 1 ){ // se server ha scritto email
-                       // Non posso modificare GUI altirmenti lancia
-                       //java.lang.IllegalStateException: Not on FX application thread 
-                   
-                       /* Alert alert = new Alert(AlertType.INFORMATION);
+                    //Thread.sleep(100);
+                    int messageCode = inStream.readInt();
+                    if (messageCode == 1) { // se server ha scritto email
+                        // Non posso modificare GUI altirmenti lancia
+                        //java.lang.IllegalStateException: Not on FX application thread 
+
+                        /* Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setTitle("New email!");
                  
                         alert.setContentText("You have a new message!");
 
-                        alert.showAndWait(); */ 
-                       System.out.println("NOTIFY!!!!"+ this.getClass().getName());
-                   }
-                  
+                        alert.showAndWait(); */
+                        //FXMLDocumentController fx = new  FXMLDocumentController();
+                        //fx.AlertEmail();
+                        System.out.println("NOTIFY!!!!" + this.getClass().getName());
+                    }
 
                 } catch (Exception ex) {
-                    keepAlive=false;
+                    keepAlive = false;
                     inStream.close();
                     System.out.println("Socket error, interrupting service");
                     Logger.getLogger(FXMLDocumentController.class
@@ -671,7 +713,175 @@ class ReceiveEmail implements Runnable {
         }
 
     }
-    
-    
 
 }
+
+class Updater extends Observable implements Runnable {
+
+    private String pathFile;
+    private String userString;
+    private List<Email> emailList= new ArrayList();
+    private List<Email> compareEmails = new ArrayList();
+    private List<Email> thirdList = new ArrayList();
+    private List<Email> iterEmails = new ArrayList();
+    private boolean newEmail = false;
+
+    public Updater(String path, String user, List<Email> compEmails) {
+        pathFile = path;
+        userString=user;
+        compareEmails.addAll(compEmails);
+
+    }
+
+    @Override
+    public void run() {
+        System.out.println("Pathfile: "+pathFile+"Userstring: "+userString); 
+        List<String> records;
+        while (true) {
+            try {
+                Thread.currentThread().setName("Thread Updater");
+                Thread.sleep(2000); // Ogni 2 secondi scansiona il file e carica le email. se ne trova una nuova in cui mittente!= utente fa update a osberver
+                
+                records = readFile(pathFile);
+                for (String s : records) {
+                    if (!"\n".equals(s)) {
+                        String[] output = s.split("\\|");
+
+                        String[] destinatariStrings = output[3].split(";"); // i destinatari sono separati da un $
+
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                        // date1 = new SimpleDateFormat("h:mm a").parse(output[1]);
+                        LocalDateTime dateTime = LocalDateTime.parse(output[1], formatter);
+                       // System.out.println(dateTime);
+                        /*  Esempio di email 12345|2019-05-10T17:07:24.764|mario@ciao|silvestro@prog.com$mario@ciao$|adsfdasfasdfs|dsafjdasfjkafjsdabajsdf*/
+                        emailList.add(new Email(Integer.parseInt(output[0]), dateTime, output[2], destinatariStrings, output[4], output[5]));
+
+                    }
+                }
+                //System.out.println("Email lista e \n "+ emailList.toString());
+                // Ora devo comparare le due liste e scoprire se ci sono nuove email
+                thirdList.addAll(emailList);// le email appena lette devono essere salvate per diventare futuro termine di paragone
+             //   emailList.removeAll(compareEmails); // se ci sono nuove email rimarranno qui.
+             /*   for (Email email : compareEmails) {
+                    
+                    for (Email e : emailList) {
+                        if( e.equals(email) ){
+                            iterEmails.add(e);
+                            
+                        }
+                        
+                    }
+                 }
+                emailList.removeAll(iterEmails); */
+             for(int i=0; i< compareEmails.size();i++){
+                 for (int k=0; k< emailList.size();k++){
+                      if(compareEmails.get(i).equals(emailList.get(k))){
+                          emailList.remove(emailList.get(k));
+                      }
+                          
+                 }
+                
+             }
+                iterEmails.clear();
+                for (Email e : emailList) {
+                    if (e.getMittente().equals(userString) == false) { // se il mittente non è user allora è una nuova email 
+                        newEmail = true;
+                        setChanged();
+                        notifyObservers(); // notifico gli osservatori
+                        Thread.sleep(100);
+                        newEmail=false;
+                        
+                    }
+                 newEmail=false;
+
+                }
+                records.clear();
+                emailList.clear();
+                compareEmails.clear();
+                compareEmails.addAll(thirdList);
+                thirdList.clear();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+
+    }
+    /**
+     * Ritona booleano che segna nuova email
+     * @return 
+     */
+    public boolean  getIfNewEmail(){
+            return newEmail;
+            }
+    /**
+     * Metodo di supporto per leggere il file
+     * @param file
+     * @return 
+     */
+    private List<String> readFile(String file) {
+        List<String> records = new ArrayList<String>();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = reader.readLine()) != null) {
+               // System.out.println(line);
+                records.add(line);
+            }
+            reader.close();
+            return records;
+        } catch (Exception e) {
+            System.out.println("Exception occurred trying to read : " + file);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+}
+
+class Notification implements Observer {
+   private Updater up;
+    
+    public Notification(Updater updater){
+        up=updater;
+    }
+    
+   
+    
+    @Override
+    public void update(Observable ob, Object x){
+      if (up.getIfNewEmail() == true){
+           System.out.println("CHIAMATA ALERT UPDATE!");
+          /* if (!SwingUtilities.isEventDispatchThread()) {
+           SwingUtilities.invokeLater(()-> {
+              AlertEmail();
+          }); 
+          } */
+          
+          
+        
+       }
+      
+    
+} 
+    
+    public boolean  getIfNewEmail(){
+        return up.getIfNewEmail();
+    }
+    
+    
+    public void AlertEmail() {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("New email!");
+
+        alert.setContentText("You have a new message!");
+
+        alert.showAndWait();
+    }
+
+    
+        
+        
+    
+    }
+

@@ -81,6 +81,21 @@ public class Email implements  Serializable{
     public String Testo() {
         return testo;
     }
+    /**
+     * Confronta la rappresentazione in stringa di due email e restituisce true se uguali
+     * @param e
+     * @return 
+     */
+    public boolean equals(Email e){
+        if(this.emailString().equals(e.emailString()) ){
+        
+            return true;
+        }
+        else
+            return false;
+        
+        
+    }
 
     /**
      * @return the date

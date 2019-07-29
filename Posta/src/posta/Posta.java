@@ -18,6 +18,7 @@ import javafx.collections.FXCollections;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -31,6 +32,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -43,6 +45,7 @@ public class Posta extends Application {
      *
      */
     Stage window; // mi serve per potere accedere allo stage da altri metodi come il close()
+    FXMLDocumentController controller;
 
     public static void main(String[] args) {
 
@@ -51,56 +54,82 @@ public class Posta extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-            
+
         try {
-            
+
             window = stage;
             Pane basePane = new Pane();
 
             Scene scene = new Scene(basePane);//aggiungo pannello alla scena
             scene.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica
             BorderPane borderPane = new BorderPane();
-           
+
             basePane.getChildren().add(borderPane);
             TextField userField = new TextField();
             Button loginButton = new Button("Login");
             VBox topBox = new VBox();
             topBox.getChildren().addAll(userField, loginButton);
             borderPane.setCenter(topBox);
-            BorderPane.setMargin(topBox, new Insets(48,48,48,48));
+            BorderPane.setMargin(topBox, new Insets(48, 48, 48, 48));
             loginButton.setOnAction((event) -> {
-                  try {
-                      FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("prova1.fxml"));
-                      
-                      Parent root = (Parent) fxmlLoader.load();
-                      FXMLDocumentController controller = fxmlLoader.<FXMLDocumentController>getController();
-                      
-                      controller.setUser(userField.getText());
-                      // Parent root = FXMLLoader.load(getClass().getResource("prova1.fxml"));
-                      
-                      Scene scene1 = new Scene(root);
-                      scene1.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica
-                      
-                      window.setScene(scene1);
-                      window.setTitle("Email v0.6 User: "+ userField.getText());
-                      window.show();
-                      
-                      window.setOnCloseRequest(
-                              e -> {
-                                  e.consume();// consumo l'evento per gestirlo completamente
-                                  close();
-                                  
-                              }
-                      ); // chiamo close quando tento di chiudere la finestra
-                  } catch (IOException ex) {
-                      Logger.getLogger(Posta.class.getName()).log(Level.SEVERE, null, ex);
-                  }
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("prova1.fxml"));
+
+                    Parent root = (Parent) fxmlLoader.load();
+                    controller = fxmlLoader.<FXMLDocumentController>getController();
+
+                    controller.setUser(userField.getText());
+                    // Parent root = FXMLLoader.load(getClass().getResource("prova1.fxml"));
+
+                    Scene scene1 = new Scene(root);
+                    scene1.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica
+
+                    window.setScene(scene1);
+                    window.setTitle("Email v0.6 User: " + userField.getText());
+                    window.show();
+
+                    window.setOnCloseRequest(
+                            e -> {
+                                e.consume();// consumo l'evento per gestirlo completamente
+                                close();
+
+                            }
+                    ); // chiamo close quando tento di chiudere la finestra
+                        
+                    
+                    //non è possibile farlo qui perchè blocca la GUI 
+                  /*  while (true) {
+
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                try {
+                                    
+                                    System.err.println("sajdbasjkbdasbajs");
+                                    
+                                    if (controller.getNotify().getIfNewEmail() == true) {
+                                        controller.AlertEmail();
+                                        
+                                    }
+                                } catch (Exception ex) {
+                                    Logger.getLogger(Posta.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+
+                            }
+
+                        });
+
+                    }*/
+                } catch (Exception ex) {
+                    Logger.getLogger(Posta.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
             });
-           
-           window.setScene(scene); 
-           window.setTitle("Login");
-           window.show();
+
+            window.setScene(scene);
+            window.setTitle("Login");
+            window.show();
 
         } catch (Exception e) {
             System.out.println(e.getCause() + e.toString());
