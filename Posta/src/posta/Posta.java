@@ -95,10 +95,9 @@ public class Posta extends Application {
 
                             }
                     ); // chiamo close quando tento di chiudere la finestra
-                        
-                    
+
                     //non è possibile farlo qui perchè blocca la GUI 
-                  /*  while (true) {
+                    /*  while (true) {
 
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
@@ -121,6 +120,12 @@ public class Posta extends Application {
                         });
 
                     }*/
+
+                     AlertNotification alt = new AlertNotification(controller);
+                      controller.getNotify().addObserver(alt);
+                     Thread t = new Thread(alt);
+                       t.start();
+                   
                 } catch (Exception ex) {
                     Logger.getLogger(Posta.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -130,6 +135,7 @@ public class Posta extends Application {
             window.setScene(scene);
             window.setTitle("Login");
             window.show();
+            
 
         } catch (Exception e) {
             System.out.println(e.getCause() + e.toString());
@@ -153,4 +159,45 @@ public class Posta extends Application {
 
     }
 
+}
+
+class AlertNotification implements Runnable,Observer {
+
+    FXMLDocumentController controller;
+
+    public AlertNotification(FXMLDocumentController c) {
+        controller = c;
+
+    }
+
+    @Override
+    public void run() {
+    /*    while (true) {
+        try {
+            
+
+               Thread.sleep(500);
+
+                if (controller.getNotify().getIfNewEmail() == true) {
+                    System.out.println("Nuova mail posta!!");
+                    controller.AlertEmail();
+
+                }
+
+            
+        } catch (Exception ex) {
+            Logger.getLogger(Posta.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    } */
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+         System.out.println("Nuova mail posta!!");
+        //controller.AlertEmail();
+        
+    }
+
+    
 }

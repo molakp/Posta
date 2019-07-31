@@ -78,7 +78,7 @@ import javax.swing.SwingUtilities;
  *
  * @author silve
  */
-public class FXMLDocumentController  implements Initializable {
+public class FXMLDocumentController  implements Initializable,Observer {
     // Oggetti finestra principale
 
     private Posta posta;
@@ -240,6 +240,7 @@ public class FXMLDocumentController  implements Initializable {
         Updater up= new Updater(filePath, user, emailList);
          notify= new Notification(up);
         up.addObserver(notify);
+        up.addObserver(this);
         // new Thread(emailReceiver).start();
         // Platform.runLater(emailReceiver);
         // Thread.sleep(10);
@@ -662,6 +663,18 @@ public class FXMLDocumentController  implements Initializable {
 
         alert.showAndWait();
     }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("New email!");
+
+        alert.setContentText("You have a new message!");
+
+        alert.showAndWait();
+        
+        
+    }
 }
 
 class ReceiveEmail implements Runnable {
@@ -739,8 +752,10 @@ class Updater extends Observable implements Runnable {
         List<String> records;
         while (true) {
             try {
+                newEmail=false;
+                
                 Thread.currentThread().setName("Thread Updater");
-                Thread.sleep(2000); // Ogni 2 secondi scansiona il file e carica le email. se ne trova una nuova in cui mittente!= utente fa update a osberver
+                Thread.sleep(5000); // Ogni 5 secondi scansiona il file e carica le email. se ne trova una nuova in cui mittente!= utente fa update a osberver
                 
                 records = readFile(pathFile);
                 for (String s : records) {
@@ -788,11 +803,11 @@ class Updater extends Observable implements Runnable {
                         newEmail = true;
                         setChanged();
                         notifyObservers(); // notifico gli osservatori
-                        Thread.sleep(100);
-                        newEmail=false;
+                       // Thread.sleep(100);
+                       // newEmail=false;
                         
                     }
-                 newEmail=false;
+                // newEmail=false;
 
                 }
                 records.clear();
@@ -839,7 +854,7 @@ class Updater extends Observable implements Runnable {
 
 }
 
-class Notification implements Observer {
+class Notification extends Observable implements Observer {
    private Updater up;
     
     public Notification(Updater updater){
@@ -852,6 +867,8 @@ class Notification implements Observer {
     public void update(Observable ob, Object x){
       if (up.getIfNewEmail() == true){
            System.out.println("CHIAMATA ALERT UPDATE!");
+           setChanged();
+           notifyObservers();
           /* if (!SwingUtilities.isEventDispatchThread()) {
            SwingUtilities.invokeLater(()-> {
               AlertEmail();
