@@ -121,10 +121,10 @@ public class Posta extends Application {
 
                     }*/
 
-                     AlertNotification alt = new AlertNotification(controller);
+                /*     AlertNotification alt = new AlertNotification(controller);
                       controller.getNotify().addObserver(alt);
                      Thread t = new Thread(alt);
-                       t.start();
+                       t.start(); */
                    
                 } catch (Exception ex) {
                     Logger.getLogger(Posta.class.getName()).log(Level.SEVERE, null, ex);

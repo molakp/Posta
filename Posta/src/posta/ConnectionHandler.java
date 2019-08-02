@@ -34,20 +34,20 @@ import javafx.stage.Stage;
  *
  * @author silve
  */
-public class ConnectionHandler  implements Runnable  {
+public class ConnectionHandler implements Runnable {
 
     @FXML
     ListView logListView;
 
     private Socket incoming;
-    private  PipedWriter outPipedWriter;
+    private PipedWriter outPipedWriter;
     private String eventToLog;
+
     public ConnectionHandler(Socket incomingSocket) {
         incoming = incomingSocket;
-        
+
     }
 
-   
     @Override
     public void run() {
         //  launch("");
@@ -55,85 +55,89 @@ public class ConnectionHandler  implements Runnable  {
         ObjectInputStream inStream;
         DataOutputStream objectOutputStream;
         String filePath = "C:\\Users\\silve\\Documents\\GitHub\\Posta\\";
-        
 
         try {
-
             inStream = new ObjectInputStream(incoming.getInputStream());
             objectOutputStream = new DataOutputStream(incoming.getOutputStream());
-            System.out.println("entrato nel try e creati stream. I'm thread: "+Thread.currentThread().toString());
+            System.out.println("entrato nel try e creati stream. I'm thread: " + Thread.currentThread().toString());
+
             while (true) {
-                try {
-
-                    // Ricevo la mail e inizio a processarla
-                    Email email = ((Email) inStream.readObject());
-                    System.out.println("Echo: " + email.emailString());
-
+                if (incoming.isClosed() == false) {
                     try {
-                        String[] output = email.getTesto().split("\\|");
+
+                        // Ricevo la mail e inizio a processarla
+                        Email email = ((Email) inStream.readObject());
+                        System.out.println("Echo: " + email.emailString());
+                        inStream.close();
 
                         try {
+                            String[] output = email.getTesto().split("\\|");
 
-                            System.out.println("Writing email in sender database ");
-                            eventToLog="Writing email in sender database " +email.getMittente();
-                          //  setChanged();
-                            //notifyObservers();
-                           // outPipedWriter.write("Writing email in "+ email.getMittente() +" database ");
-                            // Scrivo email in database mittente
-                            FileWriter fw = new FileWriter(filePath + email.getMittente() + ".txt", true);
-                            synchronized (fw) {
-                                BufferedWriter bw = new BufferedWriter(fw);
-                                PrintWriter out = new PrintWriter(bw);
-                                out.println(email.emailString());
+                            try {
 
-                                //fw.flush();
-                                out.close();
-                                bw.close();
-                                fw.close();
-
-                                System.out.println("Email wrote in sender database");
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Error in server in sender method");
-                            e.printStackTrace();
-                        }
-                        try {
-                            for (String destiString : email.getDestinatario()) {
-
-                                System.out.println("Writing email in receiver database ");
-                                // Scrivo email in database destinatario
-                                FileWriter fw = new FileWriter(filePath + destiString + ".txt", true);
+                                System.out.println("Writing email in sender database ");
+                                eventToLog = "Writing email in sender database " + email.getMittente();
+                                //  setChanged();
+                                //notifyObservers();
+                                // outPipedWriter.write("Writing email in "+ email.getMittente() +" database ");
+                                // Scrivo email in database mittente
+                                FileWriter fw = new FileWriter(filePath + email.getMittente() + ".txt", true);
                                 synchronized (fw) {
                                     BufferedWriter bw = new BufferedWriter(fw);
                                     PrintWriter out = new PrintWriter(bw);
                                     out.println(email.emailString());
+
+                                    //fw.flush();
                                     out.close();
                                     bw.close();
                                     fw.close();
-                                    
-                                    objectOutputStream.writeInt(1);
 
-                                    System.out.println("Email wrote in  database of " + destiString + "\n The buffer size is: " + objectOutputStream.size());
+                                    System.out.println("Email wrote in sender database");
                                 }
+                            } catch (Exception e) {
+                                System.out.println("Error in server in sender method");
+                                e.printStackTrace();
                             }
-                        } catch (Exception e) {
-                            System.out.println("Error in server in receiver method");
-                            System.err.println(e.toString());
-                        }
+                            try {
+                                for (String destiString : email.getDestinatario()) {
 
+                                    System.out.println("Writing email in receiver database ");
+                                    // Scrivo email in database destinatario
+                                    FileWriter fw = new FileWriter(filePath + destiString + ".txt", true);
+                                    synchronized (fw) {
+                                        BufferedWriter bw = new BufferedWriter(fw);
+                                        PrintWriter out = new PrintWriter(bw);
+                                        out.println(email.emailString());
+                                        out.close();
+                                        bw.close();
+                                        fw.close();
+
+                                        //objectOutputStream.writeInt(1);
+
+                                        System.out.println("Email wrote in  database of " + destiString + "\n The buffer size is: " + objectOutputStream.size());
+                                    }
+                                    
+                                }
+                            } catch (Exception e) {
+                                System.out.println("Error in server in receiver method");
+                                System.err.println(e.toString());
+                            }
+
+                        } catch (Exception e) {
+                            System.out.println("Error in server");
+                            System.out.println(e.getMessage());
+                        }
                     } catch (Exception e) {
                         System.out.println("Error in server");
                         System.out.println(e.getMessage());
                     }
-                } catch (Exception e) {
-                    System.out.println("Error in server");
-                    System.out.println(e.getMessage());
-                }
-            }
-        } catch (Exception ex) {
-            System.out.println("Error in server");
-            Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
+                } 
+                    Thread.currentThread().interrupt();
 
+                
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

@@ -41,12 +41,18 @@ public class SocketServer {
             ServerSocket s = new ServerSocket(8189);
           
             while (true) {
-
+                try {
+                    
                 System.out.println("Avvio nuovo thread");
                 Socket clientSocket = s.accept();
                 Runnable connectionHandler = new ConnectionHandler(clientSocket);
                // Finestra f= new Finestra
                 new Thread(connectionHandler).start();
+                    
+                } catch (Exception e) {
+                   
+                }
+
 
             }
 
