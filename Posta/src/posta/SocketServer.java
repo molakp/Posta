@@ -38,10 +38,11 @@ public class SocketServer {
         System.out.println("Finestra del socket server");
         try {
             // establish server socket
-            ServerSocket s = new ServerSocket(8189);
+           
           
             while (true) {
                 try {
+                     ServerSocket s = new ServerSocket(8189);
                     
                 System.out.println("Avvio nuovo thread");
                 Socket clientSocket = s.accept();
@@ -56,7 +57,7 @@ public class SocketServer {
 
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

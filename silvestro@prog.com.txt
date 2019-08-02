@@ -7,3 +7,9 @@
 42991270|2019-08-02T14:28:36.243|silvestro@prog.com|mario@ciao;|Inserisci oggetto|Testo|
 18317281|2019-08-02T14:36:32.843|silvestro@prog.com|mario@ciao;|Inserisci oggetto|Testo|
 11563045|2019-08-02T14:44:31.265|silvestro@prog.com|mario@ciao;|Inserisci oggetto|CIAOOOOOOOOOO|
+20847697|2019-08-02T14:54:30.747|mario@ciao|silvestro@prog.com;|Inserisci oggetto|Testo|
+6000028|2019-08-02T14:54:43.405|mario@ciao|silvestro@prog.com;|Inserisci oggetto|Testo|
+17223291|2019-08-02T14:55:13.919|silvestro@prog.com|mario@ciao;|Inserisci oggetto|Testo|
+36096011|2019-08-02T14:55:30.248|silvestro@prog.com|mario@ciao;luca@ciao;|Inserisci oggetto|Testo|
+39891564|2019-08-02T14:56:02.321|luca@ciao|mario@ciao;silvestro@prog.com;|Inserisci oggetto|Testo|
+16666756|2019-08-02T14:58:58.468|mario@ciao|silvestro@prog.com;|Inserisci oggetto|ciao|

@@ -1,1 +1,3 @@
 4421952|2019-08-02T12:58:55.917|silvestro@prog.com|luca@ciao;|Inserisci oggetto|Testo|
+36096011|2019-08-02T14:55:30.248|silvestro@prog.com|mario@ciao;luca@ciao;|Inserisci oggetto|Testo|
+39891564|2019-08-02T14:56:02.321|luca@ciao|mario@ciao;silvestro@prog.com;|Inserisci oggetto|Testo|
