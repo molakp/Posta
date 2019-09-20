@@ -5,46 +5,29 @@
  */
 package posta;
 
-import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.scene.control.Dialog;
-import javax.swing.JOptionPane;
-import javafx.collections.ObservableList;
-import javafx.collections.FXCollections;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javax.swing.SwingUtilities;
 
-/**
- *
- * @author silve
- */
 public class Posta extends Application {
 
     /**
      * @param args the command line arguments
      *
      */
-    Stage window; // mi serve per potere accedere allo stage da altri metodi come il close()
+    // servirà per poter accedere allo stage da altri metodi come il close()
+    Stage window; 
     FXMLDocumentController controller;
 
     public static void main(String[] args) {
@@ -73,19 +56,18 @@ public class Posta extends Application {
             BorderPane.setMargin(topBox, new Insets(48, 48, 48, 48));
             loginButton.setOnAction((event) -> {
                 try {
-                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("prova1.fxml"));
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Client.fxml"));
 
                     Parent root = (Parent) fxmlLoader.load();
                     controller = fxmlLoader.<FXMLDocumentController>getController();
 
                     controller.setUser(userField.getText());
-                    // Parent root = FXMLLoader.load(getClass().getResource("prova1.fxml"));
 
                     Scene scene1 = new Scene(root);
                     scene1.getStylesheets().add(getClass().getResource("Viper.css").toExternalForm()); // lo carica
 
                     window.setScene(scene1);
-                    window.setTitle("Email v0.6 User: " + userField.getText());
+                    window.setTitle("Email v1.1 User: " + userField.getText());
                     window.show();
 
                     window.setOnCloseRequest(
@@ -94,37 +76,8 @@ public class Posta extends Application {
                                 close();
 
                             }
-                    ); // chiamo close quando tento di chiudere la finestra
+                    ); // verrà chiamato il metodo close quando verrà chiusa la finestra
 
-                    //non è possibile farlo qui perchè blocca la GUI 
-                    /*  while (true) {
-
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                try {
-                                    
-                                    System.err.println("sajdbasjkbdasbajs");
-                                    
-                                    if (controller.getNotify().getIfNewEmail() == true) {
-                                        controller.AlertEmail();
-                                        
-                                    }
-                                } catch (Exception ex) {
-                                    Logger.getLogger(Posta.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-
-                            }
-
-                        });
-
-                    }*/
-
-                /*     AlertNotification alt = new AlertNotification(controller);
-                      controller.getNotify().addObserver(alt);
-                     Thread t = new Thread(alt);
-                       t.start(); */
                    
                 } catch (Exception ex) {
                     Logger.getLogger(Posta.class.getName()).log(Level.SEVERE, null, ex);
@@ -144,7 +97,7 @@ public class Posta extends Application {
 
     }
 
-    //cosa fare quando chiudo finestra
+    //metodo che gestisce la chiusura della finestra
     private void close() {
         try {
 
@@ -171,32 +124,13 @@ class AlertNotification implements Runnable,Observer {
     }
 
     @Override
-    public void run() {
-    /*    while (true) {
-        try {
-            
-
-               Thread.sleep(500);
-
-                if (controller.getNotify().getIfNewEmail() == true) {
-                    System.out.println("Nuova mail posta!!");
-                    controller.AlertEmail();
-
-                }
-
-            
-        } catch (Exception ex) {
-            Logger.getLogger(Posta.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    } */
+    public void update(Observable o, Object arg) {
+         System.out.println("Nuova mail posta!!");
+        
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-         System.out.println("Nuova mail posta!!");
-        //controller.AlertEmail();
-        
+    public void run() {
     }
 
     

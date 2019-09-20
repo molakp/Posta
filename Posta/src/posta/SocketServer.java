@@ -4,110 +4,87 @@
  * and open the template in the editor.
  */
 package posta;
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-import static com.sun.glass.ui.Cursor.setVisible;
 import java.io.*;
 import java.net.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import static javafx.application.Application.launch;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import static posta.ConfirmBox.display;
 
+public class SocketServer extends Application implements Runnable {
+    public static StringProperty logData = new SimpleStringProperty();
 
-/**
- *
- * @author silve
- */
-public class SocketServer {
+    @Override
+    public void start(Stage primaryStage) throws IOException, InterruptedException {
+        
+        Parent root = FXMLLoader.load(getClass().getResource("Server.fxml"));
+        
+        primaryStage.setTitle("Info server");
+        primaryStage.setScene(new Scene(root));
+        primaryStage.show();
+
+        try {
+
+            Runnable thread = new SocketServer();
+            new Thread(thread).start();
+            
+            primaryStage.setOnCloseRequest(
+                e -> {
+                    e.consume();
+                    primaryStage.close();
+                    System.exit(0);
+                }
+        );
+
+        } catch (Exception e) {
+            System.out.println("Errore");
+
+        }
+
+    }
 
     public static void main(String[] args) {
-        System.out.println("Finestra del socket server");
+        logData.set("");
+        launch(args);
+        
+    }
+    //funzione che aggiorna informazioni server
+    public void setInfoServer(String stringa) {
+        if (logData.get() == "") {
+            logData.set(stringa);
+        } else {
+            logData.set(logData.get() + "\n" + stringa);
+        }
+
+    }
+    
+    @Override
+    public void run() {
         try {
             // establish server socket
-           
-          
             while (true) {
-                try {
-                     ServerSocket s = new ServerSocket(8189);
+                    //creo il socket server
+                    ServerSocket s = new ServerSocket(8189);//x scrivi
                     
-                System.out.println("Avvio nuovo thread");
-                Socket clientSocket = s.accept();
-                Runnable connectionHandler = new ConnectionHandler(clientSocket);
-               // Finestra f= new Finestra
-                new Thread(connectionHandler).start();
-                    
-                } catch (Exception e) {
-                   
-                }
-
-
+                    //rimango in attesa di connessioni
+                    Socket clientSocket = s.accept();
+                    //setInfoServer("Dopo accept");
+                    Runnable connectionHandler = new ConnectionHandler(clientSocket);
+                    //avvio il thread che scriverà l'email nel file
+                    new Thread(connectionHandler).start();
+                    //chiudo il socket per poi riaprilo alla prossima connesione
+                    s.close();
+                    setInfoServer("Email scritta con successo");
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getCause());            
+            System.out.println(e.getMessage());
         }
-    }
-
-    /*public void update(Observable ob, Object x) {
-        display.setText("Saldo = " + cb.getSaldo());
-    } */
-
-    /*@Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Hello World!");
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
- 
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
-        
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
-        primaryStage.setScene(new Scene(root, 300, 250));
-        primaryStage.show();
-    } 
-
-     */
-    public void createSocket() {
-
     }
 }
 
-/*class Finestra extends JFrame implements
-        Observer {
-
-    private JLabel display;
-    private ContoBancario cb;
-
-    public Finestra( conto) {
-        cb = conto;
-        display = new JLabel();
-        add(display);
-        display.setText("Saldo = " + 0);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        pack();
-        setVisible(true);
-    }
-
-    public void update(Observable ob, Object x) {
-        display.setText("Saldo = " + cb.getSaldo());
-    }
-} */

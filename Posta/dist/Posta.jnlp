@@ -8,8 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="Posta.jar" size="49904" download="eager" />
-    <jar href="lib\jfoenix-8.0.8.jar" size="2708772" download="eager" />
+    <jar href="Posta.jar" size="33083" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="Posta" >
     <param name="requiredFXVersion" value="8.0+"/>

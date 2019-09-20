@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+
+<VBox nodeOrientation="LEFT_TO_RIGHT" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="posta.ControllerServer">
+   <children>
+      <TextField alignment="TOP_CENTER" disable="true" editable="false" prefHeight="38.0" prefWidth="598.0" style="-fx-background-color: #B3C7FE;" text="Server log" VBox.vgrow="ALWAYS">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </TextField>
+      <TextArea fx:id="text" editable="false" prefHeight="349.0" prefWidth="733.0" wrapText="true" VBox.vgrow="ALWAYS">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </TextArea>
+   </children>
+</VBox>
